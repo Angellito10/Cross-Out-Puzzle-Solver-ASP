@@ -86,7 +86,7 @@ Or manually download it from the [Potassco GitHub Releases](https://github.com/p
 ### 1. Clone the Repository  
 
 ```bash
-git clone [https://github.com/<your-username>/<repo-name>.git](https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git)
+git clone (https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git)
 cd Cross-Out-Puzzle-Solver-ASP
 ```
 
