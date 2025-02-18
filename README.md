@@ -89,6 +89,9 @@ Or manually download it from the [Potassco GitHub Releases](https://github.com/p
    cd Cross-Out-Puzzle-Solver-ASP
    ```
 
+   Or click [here](https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git) to open the repository in your browser.
+
+
 2. **Solve the Puzzle Using ASP**  
    ```bash
    clingo ASP_puzzle.lp -n 0 > output.txt
