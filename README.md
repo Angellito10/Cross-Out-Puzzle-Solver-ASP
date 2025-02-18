@@ -1,16 +1,8 @@
-# Cross-Out-Puzzle-Solver-ASP
-Cross-Out is a puzzle where you’re given a grid of symbols. Your task is to “cross out” certain cells so that:
-
-Below is a **more explanatory** and **detailed** `README.md` that follows a style similar to the example you shared (about Yao’s Garbled Circuit). It expands on the **Cross-Out Puzzle** concept, **objectives**, **constraints**, **logic flow**, and **implementation details**. You can copy and paste this directly into your GitHub repository.
+Here's your improved `README.md`, following the detailed and explanatory style you requested:  
 
 ---
 
-# Cross-Out Puzzle Solver
-
-> **Author:** Your Name  
-> **Date:** YYYY-MM-DD  
-
----
+# Cross-Out Puzzle Solver (ASP)
 
 ## Table of Contents
 
@@ -25,265 +17,213 @@ Below is a **more explanatory** and **detailed** `README.md` that follows a styl
 9. [Ethical Considerations](#ethical-considerations)  
 10. [Conclusion](#conclusion)  
 11. [License](#license)  
-12. [Contact](#contact)
+12. [Contact](#contact)  
 
 ---
 
-## Project Overview
+## Project Overview  
 
-This project implements an **automated Cross-Out Puzzle solver** using **Answer Set Programming (ASP)**. A Cross-Out Puzzle provides a rectangular grid of symbols, where some cells must be “crossed out” to satisfy certain **logical and connectivity constraints**. 
+This project implements an **automated Cross-Out Puzzle solver** using **Answer Set Programming (ASP)**. The Cross-Out Puzzle consists of a rectangular grid of symbols, where some cells must be crossed out to satisfy specific **logical and structural constraints**.  
 
-This repository:
-- Leverages **Clingo** (an ASP solver) to perform the puzzle-solving.
-- Includes a **Python script** for visualizing the solver’s output in a human-readable grid.
-- Demonstrates how **declarative constraints** can elegantly solve complex combinatorial puzzles.
+This repository:  
 
----
-
-## Objective
-
-The primary objective is to:
-1. **Determine** which cells in a grid should be crossed out so that:
-   - **No symbol repeats** in any row or column among the active (non-crossed-out) cells.
-   - **No two crossed-out cells** are adjacent (horizontally or vertically).
-   - **All non-crossed-out cells** form a **single connected region** via vertical/horizontal moves.
-2. **Provide** an easily modifiable solution where:
-   - The **grid** (puzzle input) can be changed by editing `cell/3` facts.
-   - The **constraints** remain consistent, ensuring the puzzle is solved automatically.
+- Utilizes **Clingo** (an ASP solver) to solve the puzzle declaratively.  
+- Provides a **Python visualization script** to interpret and display the solver’s output in a grid format.  
+- Demonstrates the power of **constraint programming** in solving structured combinatorial puzzles.  
 
 ---
 
-## Puzzle Explanation
+## Objective  
 
-### Inputs and Outputs
+The primary goal of this project is to solve Cross-Out Puzzles by ensuring:  
 
-- **Puzzle Input:** A set of `cell(Row, Column, "Symbol")` facts that define a rectangular grid.
-- **Solver Output:** 
-  - A set of `crossedout(Row, Column, "Symbol")` facts indicating which cells should be crossed out.
-  - The remaining cells (not crossed out) represent the final, valid configuration.
+1. **Uniqueness Constraint**:  
+   - No symbol repeats in any row or column among the **remaining (non-crossed-out) cells**.  
 
-### Example Grid (5×5)
+2. **No Adjacent Crossed-Out Cells**:  
+   - Crossed-out cells **must not** be directly next to each other (horizontally or vertically).  
 
-Consider the following puzzle:
+3. **Connected Component Constraint**:  
+   - The remaining (non-crossed-out) cells **must form a single connected region** using vertical and horizontal moves.  
+
+The project also aims to provide a **flexible** and **extendable** solution where:  
+
+- The **grid input** can be modified easily within `ASP_puzzle.lp`.  
+- The constraints are **dynamically applied**, ensuring puzzle consistency.  
+
+---
+
+## Project Structure  
 
 ```
-c  e  b  b  c
-b  e  a  d  e
-a  d  a  c  e
-c  a  b  e  c
-e  b  a  a  a
-```
-
-Each cell is encoded as:
-
-```
-cell(1,1,"c"). cell(1,2,"e"). cell(1,3,"b"). cell(1,4,"b"). cell(1,5,"c").
-cell(2,1,"b"). cell(2,2,"e"). cell(2,3,"a"). cell(2,4,"d"). cell(2,5,"e").
-cell(3,1,"a"). cell(3,2,"d"). cell(3,3,"a"). cell(3,4,"c"). cell(3,5,"e").
-cell(4,1,"c"). cell(4,2,"a"). cell(4,3,"b"). cell(4,4,"e"). cell(4,5,"c").
-cell(5,1,"e"). cell(5,2,"b"). cell(5,3,"a"). cell(5,4,"a"). cell(5,5,"a").
+.
+├── ASP_puzzle.lp      # ASP code (puzzle facts + constraints)
+├── visual.py          # Python script to visualize solver output
+└── output.txt         # Example solver output
 ```
 
 ---
 
-## Constraints and Logic Flow
+## Requirements  
 
-1. **Unique Symbols in Rows and Columns**  
-   - For any two cells in the same row or column, **only one** can remain active if they share the same symbol.
-   - Crossed-out cells are “ignored” in this uniqueness check.
+- **Clingo** (ASP Solver) - Version 5.x or later  
+- **Python 3** (for the visualization script)  
 
-2. **No Adjacent Cross-Outs**  
-   - A crossed-out cell cannot have a neighbor (up, down, left, or right) that is also crossed out.
-   - This ensures scattered or isolated crosses, preventing clusters of crossed cells.
+### Installation  
 
-3. **Contiguous Non-Crossed-Out Region**  
-   - After deciding which cells to cross out, the remaining (active) cells must form a single connected component.
-   - We use a **root selection** and **reachability** propagation to ensure there is exactly one contiguous area.
+On Ubuntu/Debian, Clingo can be installed using:  
 
-### Detailed Logic Flow
+```bash
+sudo apt install gringo clasp clingo
+```
 
-1. **Symbol Check**  
-   The solver looks at each row and column. If two cells share the same symbol, **not both** can remain uncrossed.  
-2. **Cross-Out Adjacency Check**  
-   A neighbor relation is established (only horizontal/vertical). Any pair of neighbors **cannot** both be crossed out.  
-3. **Connectivity Enforcement**  
-   - The solver picks **one** non-crossed cell as a “root” (using a deterministic `#min` approach).  
-   - It recursively marks all neighboring non-crossed cells as reachable.  
-   - Any cell that remains non-crossed but is **not** reachable from the root is disallowed.
+Or manually download it from the [Potassco GitHub Releases](https://github.com/potassco/clingo/releases).  
 
 ---
 
-## Implementation Details
+## Running the Solver and Visualizer  
 
-1. **Answer Set Programming (ASP):**  
-   - **Choice Rule**: Nondeterministically guess which cells to cross out.  
-   - **Constraints**: Enforce row/column uniqueness, no adjacent crosses, and connectivity.
+### 1. Clone the Repository  
 
-2. **Optimization & Determinism:**  
-   - We define adjacency **minimally** (only to the right and down), then add a **symmetry** rule.  
-   - We use a **deterministic** root selection to avoid multiple solutions differing only by the choice of “seed.”
+```bash
+git clone [https://github.com/<your-username>/<repo-name>.git](https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git)
+cd Cross-Out-Puzzle-Solver-ASP
+```
 
-3. **Visualization:**  
-   - The solver’s output is written to `output.txt`.  
-   - A Python script (`visual.py`) parses the `cell/3` and `crossedout/3` facts, then prints the grid with “X” for crossed-out cells.
+### 2. Solve the Puzzle Using ASP  
+
+```bash
+clingo ASP_puzzle.lp -n 0 > output.txt
+```
+
+- `ASP_puzzle.lp` contains **both the puzzle facts and constraints**.  
+- `-n 0` finds **all possible valid solutions**.  
+- The output is stored in `output.txt`.  
+
+### 3. Visualize the Solution  
+
+```bash
+python3 visual.py
+```
+
+- The script **reads `output.txt`** and displays the puzzle grid, marking crossed-out cells with `X`.  
 
 ---
 
-## ASP Code Explanation
+## Puzzle Explanation  
 
-The **`ASP_puzzle.lp`** file combines **puzzle facts** (the grid) and the **constraint logic**:
+### Inputs and Outputs  
+
+- **Puzzle Input:**  
+  - The puzzle grid is encoded using `cell(Row, Column, "Symbol")` facts.  
+
+- **Solver Output:**  
+  - A set of `crossedout(Row, Column, "Symbol")` facts indicating which cells should be crossed out.  
+  - The remaining cells (not crossed out) represent the **valid solution**.  
+
+### Example Grid (5×5)  
+
+#### Initial Grid  
+
+```
+c  e  b  b  c  
+b  e  a  d  e  
+a  d  a  c  e  
+c  a  b  e  c  
+e  b  a  a  a  
+```
+
+#### Encoded as ASP Facts  
 
 ```prolog
-% (1) Example Puzzle (5x5)
 cell(1,1,"c"). cell(1,2,"e"). cell(1,3,"b"). cell(1,4,"b"). cell(1,5,"c").
 cell(2,1,"b"). cell(2,2,"e"). cell(2,3,"a"). cell(2,4,"d"). cell(2,5,"e").
 cell(3,1,"a"). cell(3,2,"d"). cell(3,3,"a"). cell(3,4,"c"). cell(3,5,"e").
 cell(4,1,"c"). cell(4,2,"a"). cell(4,3,"b"). cell(4,4,"e"). cell(4,5,"c").
 cell(5,1,"e"). cell(5,2,"b"). cell(5,3,"a"). cell(5,4,"a"). cell(5,5,"a").
-
-% (2) Choice Rule
-{ crossedout(R, C, S) } :- cell(R, C, S).
-
-% (3) Uniqueness
-:- cell(R, C1, S), cell(R, C2, S), C1 < C2, not crossedout(R, C1, S), not crossedout(R, C2, S).
-:- cell(R1, C, S), cell(R2, C, S), R1 < R2, not crossedout(R1, C, S), not crossedout(R2, C, S).
-
-% (4) No Adjacent Cross-Outs
-adjacent(R, C, R, C+1) :- cell(R, C, _), cell(R, C+1, _).  % Right
-adjacent(R, C, R+1, C) :- cell(R, C, _), cell(R+1, C, _).  % Down
-adjacent(R, C, R1, C1) :- adjacent(R1, C1, R, C).          % Symmetry
-:- crossedout(R, C, _), crossedout(Rn, Cn, _), adjacent(R, C, Rn, Cn).
-
-% (5) Connectivity
-root(X, Y) :- cell(X, Y, _), not crossedout(X, Y, _),
-              #min { (X1, Y1) : cell(X1, Y1, _), not crossedout(X1, Y1, _) } = (X, Y).
-
-reachable(X, Y) :- root(X, Y).
-reachable(Xn, Yn) :- reachable(X, Y), adjacent(X, Y, Xn, Yn), not crossedout(Xn, Yn, _).
-
-:- cell(X, Y, _), not crossedout(X, Y, _), not reachable(X, Y).
-
-% (6) Optional: Force At Least One Cross-Out
-% :- { crossedout(_, _, _) } = 0.
-
-% (7) Output
-#show cell/3.
-#show crossedout/3.
 ```
 
 ---
 
-## Visualization Script Explanation
+## Constraints and Logic Flow  
 
-The **`visual.py`** script reads the solver output (`output.txt`) and prints the puzzle:
+1. **Symbol Uniqueness**  
+   - No symbol can appear **twice** in the same row or column among the **non-crossed-out cells**.  
 
-```python
-import re
+2. **No Adjacent Crossed-Out Cells**  
+   - Crossed-out cells **must not** be directly next to each other.  
 
-with open("output.txt") as f:
-    data = f.read()
+3. **Connectivity of Remaining Cells**  
+   - The remaining cells must **form a single connected component** using only vertical and horizontal connections.  
 
-cell_facts = re.findall(r'cell\((\d+),(\d+),"([^"]+)"\)', data)
-crossed_facts = re.findall(r'crossedout\((\d+),(\d+),"([^"]+)"\)', data)
+---
 
-if not cell_facts:
-    print("No cell facts found. Please ensure the ASP output includes cell/3 facts.")
-    exit(1)
+## Implementation Details  
 
-rows = max(int(r) for (r, c, s) in cell_facts)
-cols = max(int(c) for (r, c, s) in cell_facts)
+- **ASP Choice Rules**:  
+  - Guess which cells should be crossed out.  
+- **Constraints**:  
+  - Enforce row/column uniqueness.  
+  - Prevent adjacent crossed-out cells.  
+  - Ensure remaining cells form a connected region.  
 
-grid = {}
-for (r, c, s) in cell_facts:
-    grid[(int(r), int(c))] = s
+---
 
-crossed = {(int(r), int(c)) for (r, c, s) in crossed_facts}
+## ASP Code Explanation (`ASP_puzzle.lp`)  
 
-print("Visualized Grid (X marks a crossed-out cell):")
-for i in range(1, rows+1):
-    row_str = ""
-    for j in range(1, cols+1):
-        if (i, j) in crossed:
-            row_str += " X "
-        else:
-            row_str += f" {grid[(i, j)]} "
-    print(row_str)
+### Key Features  
+
+1. **Symbol Check**  
+   - Ensures that no **two non-crossed-out cells** in the same row/column share the same symbol.  
+
+2. **Cross-Out Adjacency Check**  
+   - Prevents adjacent crossed-out cells.  
+
+3. **Connectivity Enforcement**  
+   - Uses a **root selection** method to ensure **all non-crossed-out cells** are connected.  
+
+---
+
+## Visualization Script Explanation (`visual.py`)  
+
+- Reads `output.txt`.  
+- Parses the solver’s output into a **grid format**.  
+- Displays the puzzle with `X` marking crossed-out cells.  
+
+Example Output:  
+
+```
+c  e  X  b  X  
+b  X  a  d  e  
+a  d  X  c  X  
+X  a  b  e  c  
+e  b  X  a  X  
 ```
 
-- **Regex** is used to capture `cell(...)` and `crossedout(...)` facts.  
-- The grid is then **reconstructed** and displayed with `X` in crossed-out cells.
+---
+
+## Ethical Considerations  
+
+While this project is a **puzzle-solving tool**, it demonstrates the broader **potential of constraint-solving techniques**.  
+
+- **Optimization & Decision Making**:  
+  - Constraint solvers are widely used in **scheduling, logistics, and AI planning**.  
+- **Transparency & Fairness**:  
+  - The logic-based approach ensures **predictability** and **explainability**.  
 
 ---
 
-## Running the Solver and Visualizer
+## Conclusion  
 
-1. **Install Clingo**  
-   If you haven’t installed Clingo, download it from [Potassco Releases](https://github.com/potassco/clingo/releases) or build from source.
+This **Cross-Out Puzzle Solver** showcases the power of **Answer Set Programming (ASP)** for solving **constraint satisfaction problems**.  
 
-2. **Run Clingo**  
-   ```bash
-   clingo ASP_puzzle.lp -n 0 > output.txt
-   ```
-   - `-n 0` computes all solutions. Deterministic root selection typically yields one solution per crossing pattern.
+Key Takeaways:  
 
-3. **Visualize**  
-   ```bash
-   python3 visual.py
-   ```
-   - The script reads `output.txt` and prints the puzzle, with crossed-out cells marked as “X.”
+✔ **Deterministic root selection** avoids redundant solutions.  
+✔ **Minimal adjacency rules** reduce redundant constraints.  
+✔ **Fully automated** solver with **clear visualization output**.  
 
-4. **Validation**  
-   - Check that no symbol repeats in a row/column ignoring X’s.  
-   - Ensure that no two X’s are adjacent.  
-   - Confirm that all remaining cells are connected in a single region.
 
 ---
 
-## Ethical Considerations
-
-While this puzzle solver is recreational, the underlying **constraint-solving** methods have broad applicability, including:
-
-1. **Dual-Use Technology**  
-   Similar optimization techniques can be repurposed for scheduling, logistics, or military planning.
-
-2. **Human Oversight**  
-   In high-stakes scenarios, ensuring a human-in-the-loop can prevent harmful or unintended consequences.
-
-3. **Transparency & Accountability**  
-   Systems using advanced AI/ASP methods should document how decisions are made to facilitate audits and ethical reviews.
-
-4. **Responsible Innovation**  
-   Even academic tools can have societal impacts if adapted for real-world, mission-critical tasks. Researchers and developers must consider ethical implications.
-
----
-
-## Conclusion
-
-This **Cross-Out Puzzle Solver** demonstrates how **ASP** can elegantly address constraint satisfaction problems with minimal, declarative code. Key features include:
-
-- **Deterministic** root selection to avoid duplicate solutions.  
-- **Minimal adjacency** definition to reduce redundant facts.  
-- **Optional** constraint to force at least one cross-out.  
-- A **visualization script** that clarifies the solver’s output.
-
-Whether you are exploring ASP for fun puzzles or more serious applications, this repository provides a solid foundation for further development and experimentation.
-
----
-
-## License
-
-This project is released under the [MIT License](LICENSE) (or choose your own license). You are free to use, modify, and distribute the code for academic or personal projects. For commercial or other uses, please review the license terms or contact the author.
-
----
-
-## Contact
-
-- **Author**: Your Name or Organization  
-- **Email**: [Your Email Address]  
-- **GitHub**: [Your GitHub Profile URL]  
-
-Feel free to open an issue or pull request if you have ideas for improvement, or email me directly for questions and collaborations.
-
----
-
-**Happy Puzzling with ASP!**
+Happy Puzzling with ASP! 🚀
