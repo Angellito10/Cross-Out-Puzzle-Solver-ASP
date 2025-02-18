@@ -81,24 +81,21 @@ Or manually download it from the [Potassco GitHub Releases](https://github.com/p
 
 ---
 
-## Running the Solver and Visualizer  
+### Running the Solver and Visualizer  
 
-### 1. Clone the Repository  
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git
+   cd Cross-Out-Puzzle-Solver-ASP
+   ```
 
-```bash
-git clone (https://github.com/Angellito10/Cross-Out-Puzzle-Solver-ASP.git)
-cd Cross-Out-Puzzle-Solver-ASP
-```
-
-### 2. Solve the Puzzle Using ASP  
-
-```bash
-clingo ASP_puzzle.lp -n 0 > output.txt
-```
-
-- `ASP_puzzle.lp` contains **both the puzzle facts and constraints**.  
-- `-n 0` finds **all possible valid solutions**.  
-- The output is stored in `output.txt`.  
+2. **Solve the Puzzle Using ASP**  
+   ```bash
+   clingo ASP_puzzle.lp -n 0 > output.txt
+   ```  
+   - `ASP_puzzle.lp` contains the puzzle logic and constraints.  
+   - `-n 0` finds all possible solutions 
+   - The output is stored in `output.txt`.  
 
 ### 3. Visualize the Solution  
 
