@@ -13,9 +13,7 @@
 7. [Visualization Script Explanation](#visualization-script-explanation)  
 8. [Running the Solver and Visualizer](#running-the-solver-and-visualizer)  
 9. [Ethical Considerations](#ethical-considerations)  
-10. [Conclusion](#conclusion)  
-11. [License](#license)  
-12. [Contact](#contact)  
+10. [Conclusion](#conclusion)   
 
 ---
 
