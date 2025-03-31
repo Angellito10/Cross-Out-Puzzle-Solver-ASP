@@ -1,6 +1,4 @@
-Here's your improved `README.md`, following the detailed and explanatory style you requested:  
 
----
 
 # Cross-Out Puzzle Solver (ASP)
 
